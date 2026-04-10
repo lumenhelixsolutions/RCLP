@@ -1,0 +1,119 @@
+# RCLP API Reference
+
+## rclp.RCLP_KEM
+
+The main key encapsulation mechanism.
+
+```python
+from rclp import RCLP_KEM
+
+kem = RCLP_KEM(security_bits=128)  # 128, 192, or 256
+
+pk, sk = kem.keygen(seed=None)
+ct, shared_secret = kem.encapsulate(pk, seed=None)
+shared_secret = kem.decapsulate(sk, ct)
+
+# Size queries
+kem.public_key_size()   # bytes
+kem.secret_key_size()   # bytes
+kem.ciphertext_size()   # bytes
+```
+
+## rclp.GolayCode
+
+The [24,12,8] extended binary Golay code.
+
+```python
+from rclp import GolayCode
+
+g = GolayCode()
+g.codewords       # np.array shape (4096, 24)
+g.weights          # np.array shape (4096,)
+g.octads()         # list of 759 frozensets
+g.dodecads()       # list of 2576 frozensets
+g.hexadecads()     # list of 759 frozensets
+
+# Verification
+g.verify_weight_distribution()  # bool
+g.verify_self_duality()         # bool
+g.verify_steiner_system()       # bool
+
+# Decoding
+decoded, hamming_dist = g.decode_nearest_codeword(received_word)
+
+# Partition functions (exact rational)
+F = g.partition_function(weight=8, s=2)  # returns Fraction
+
+# Sign-change automorphism (the fundamental flip)
+flipped = GolayCode.apply_sign_change(codeword, vector)
+```
+
+## rclp.LeechLattice
+
+The Leech lattice Λ₂₄ constructed from the Golay code.
+
+```python
+from rclp import LeechLattice
+
+L = LeechLattice()
+L.build_type_a()              # 1,104 vectors
+L.build_type_b()              # 97,152 vectors (slow)
+L.build_type_c()              # 98,304 vectors (slow)
+L.all_minimal_vectors()       # all 196,560
+
+L.verify_kissing_number()     # bool
+L.verify_norms()              # bool
+L.verify_antipodal()          # bool
+L.verify_sign_change_preservation()  # bool
+```
+
+## rclp.TwoSidedSurface / rclp.EnrichedFlip
+
+The enriched two-sided surface model.
+
+```python
+from rclp import TwoSidedSurface, EnrichedFlip
+from rclp.surface import SurfaceState, BITS_PER_SIDE
+
+# Create a random two-sided surface
+s = TwoSidedSurface.random()
+s.flip()                    # atomic total swap
+s.visible_state()           # outer SurfaceState
+s.hidden_state()            # inner SurfaceState
+s.is_flipped()              # bool
+
+# Apply Golay-constrained flip to 24 surfaces
+flipper = EnrichedFlip()
+surfaces = [TwoSidedSurface.random() for _ in range(24)]
+flipper.apply(surfaces, codeword)
+flipper.is_valid_pattern(pattern)  # bool
+EnrichedFlip.payload_bits(8)       # 1536
+EnrichedFlip.amplification_factor()  # 129.0
+```
+
+## rclp.BabaiGolayDecoder
+
+The optimal RCLP decoder.
+
+```python
+from rclp import BabaiGolayDecoder
+
+dec = BabaiGolayDecoder()
+codeword, n_corrections = dec.decode(base_point, unflipped_observation)
+p = BabaiGolayDecoder.minimum_coordinate_sample(q=31, min_coord=4)
+```
+
+## rclp.Quaternion / rclp.Octonion / rclp.Sedenion
+
+Hypercomplex arithmetic over Z or Z_q.
+
+```python
+from rclp import Quaternion, Octonion, Sedenion
+
+a = Quaternion([1, 2, 3, 4], modulus=127)
+b = Quaternion([5, 6, 7, 8], modulus=127)
+c = a * b  # non-commutative: a*b != b*a
+
+s_a, s_b = Sedenion.known_zero_divisor()
+assert (s_a * s_b).is_zero()  # verified zero-divisor pair
+```

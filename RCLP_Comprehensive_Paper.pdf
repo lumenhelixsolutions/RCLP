@@ -1,0 +1,73 @@
+# RCLP Architecture
+
+## System Overview
+
+RCLP implements a layered cryptographic architecture where security derives from the composition of multiple structural constraints, not a single hard problem.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    RCLP-KEM Protocol                     │
+│     KeyGen → Encaps → Decaps (SHA3-256 key derivation)  │
+├─────────────────────────────────────────────────────────┤
+│              Matryoshka Composition Layer                 │
+│   L independent layers, sequential depth within each     │
+│   Depth 3: Trio permutation (~12 bits)                   │
+│   Depth 2: Sextet reorganization (~10 bits)              │
+│   Depth 1: Golay flip (12 bits + 1536-bit payload)       │
+├─────────────────────────────────────────────────────────┤
+│           Enriched Two-Sided Surface Model                │
+│   24 positions × 192 bits/side × 2 sides = 9,216 bits    │
+│   Color(24) + Glyph(21) + Sedenion(128) + Pos(5) + R(14)│
+├─────────────────────────────────────────────────────────┤
+│                 Algebraic Foundation                      │
+│   Golay [24,12,8] → Leech Λ₂₄ → Co₀ automorphisms      │
+│   Sign-change subgroup 2¹² ⊂ Co₀                         │
+│   Wreath products S₃≀S₈ (trio), S₄≀S₆ (sextet)          │
+└─────────────────────────────────────────────────────────┘
+```
+
+## Module Dependency Graph
+
+```
+rclp/
+├── golay.py        ← foundation (no dependencies)
+├── leech.py        ← depends on golay
+├── surface.py      ← depends on golay
+├── decoder.py      ← depends on golay
+├── kem.py          ← depends on golay, decoder
+├── hypercomplex.py ← standalone (quaternion/octonion/sedenion)
+└── verification.py ← depends on all of the above
+```
+
+## The Fundamental Operation
+
+Everything in RCLP reduces to one operation:
+
+```
+FLIP(i): (S⁺ᵢ, S⁻ᵢ) → (S⁻ᵢ, S⁺ᵢ)
+```
+
+Subject to: the set of flipped positions must form a Golay codeword.
+
+This operation is total, atomic, reversible, constrained, composable, and enriched. See the main paper (Section 7) for the unified description.
+
+## Data Flow
+
+```
+KeyGen:
+  1. Sample p ∈ lattice (|pᵢ| ≥ min_coord)
+  2. Sample c ∈ Golay code (random codeword)
+  3. Compute t = σ_c(p) + e (flip + noise)
+  4. Publish pk = t, store sk = (c, p)
+
+Encaps:
+  1. Sample fresh c' ∈ Golay code
+  2. Compute ct = σ_c'(t) + e' (fresh flip + noise)
+  3. Derive K = SHA3-256(c'₁ ‖ c'₂ ‖ ... ‖ c'_L)
+
+Decaps:
+  1. Apply σ_c to ct (cancels secret flip: σ² = id)
+  2. Babai rounding: recover c' estimate per position
+  3. Golay nearest-codeword: correct ≤3 errors
+  4. Derive K = SHA3-256(c'₁ ‖ c'₂ ‖ ... ‖ c'_L)
+```

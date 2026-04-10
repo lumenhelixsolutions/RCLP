@@ -1,0 +1,58 @@
+"""Unit tests for the Babai + Golay decoder."""
+
+import pytest
+import numpy as np
+from rclp.decoder import BabaiGolayDecoder
+from rclp.golay import GolayCode
+
+
+@pytest.fixture
+def decoder():
+    return BabaiGolayDecoder()
+
+
+def test_minimum_coordinate_sample():
+    """All sampled coordinates should satisfy |p_i| >= min_coord."""
+    for seed in range(20):
+        p = BabaiGolayDecoder.minimum_coordinate_sample(q=31, min_coord=4, seed=seed)
+        assert np.all(np.abs(p) >= 4)
+
+
+def test_decoder_correctness(decoder):
+    """Decoder should recover the correct codeword with no noise."""
+    np.random.seed(42)
+    successes = 0
+    trials = 500
+    for trial in range(trials):
+        p = BabaiGolayDecoder.minimum_coordinate_sample(q=31, min_coord=4, seed=trial)
+        idx = np.random.randint(0, 4096)
+        c = decoder.golay.codewords[idx]
+        unflipped_exact = GolayCode.apply_sign_change(c, p).astype(np.int64)
+        # Apply another sign-change (as if undoing secret flip): recover c directly
+        # Actually, the decoder expects to find c from comparison of p and unflipped
+        # Here we pretend unflipped = sigma_c(p) and we want to recover c
+        recovered, _ = decoder.decode(p, unflipped_exact)
+        if np.array_equal(recovered, c):
+            successes += 1
+    assert successes == trials
+
+
+def test_decoder_with_small_noise(decoder):
+    """Decoder should tolerate small noise."""
+    np.random.seed(42)
+    successes = 0
+    trials = 500
+    for trial in range(trials):
+        p = BabaiGolayDecoder.minimum_coordinate_sample(q=31, min_coord=4, seed=trial + 1000)
+        idx = np.random.randint(0, 4096)
+        c = decoder.golay.codewords[idx]
+        unflipped_exact = GolayCode.apply_sign_change(c, p).astype(np.int64)
+        # Add small noise
+        noise = np.zeros(24, dtype=np.int64)
+        noise[np.random.randint(0, 24)] = np.random.choice([-1, 1])
+        unflipped_noisy = unflipped_exact + noise
+        recovered, _ = decoder.decode(p, unflipped_noisy)
+        if np.array_equal(recovered, c):
+            successes += 1
+    # Expect very high success rate with single-bit noise
+    assert successes / trials > 0.95

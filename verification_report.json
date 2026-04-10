@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+"""
+matryoshka_composition.py — Demonstrate Matryoshka nesting across security levels.
+
+Shows how RCLP-KEM scales from 128-bit to 256-bit security by adding layers,
+and verifies correctness at each level.
+"""
+
+import sys
+import time
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+from rclp import RCLP_KEM
+
+
+def main():
+    print("RCLP Matryoshka Composition Demo")
+    print("=" * 50)
+
+    for level in [128, 192, 256]:
+        kem = RCLP_KEM(security_bits=level)
+        print(f"\n--- RCLP-{level} ---")
+        print(f"  Matryoshka layers: {kem.n_layers}")
+        print(f"  Modulus q: {kem.q}")
+        print(f"  Sizes: PK={kem.public_key_size()}B, SK={kem.secret_key_size()}B, CT={kem.ciphertext_size()}B")
+
+        # Run 50 roundtrips
+        t0 = time.time()
+        successes = 0
+        for trial in range(50):
+            pk, sk = kem.keygen(seed=trial)
+            ct, ss_enc = kem.encapsulate(pk, seed=trial + 1000)
+            ss_dec = kem.decapsulate(sk, ct)
+            if ss_enc == ss_dec:
+                successes += 1
+        elapsed = time.time() - t0
+
+        print(f"  Correctness: {successes}/50 = {100*successes/50:.0f}%")
+        print(f"  Time for 50 roundtrips: {elapsed:.2f}s ({1000*elapsed/50:.1f}ms each)")
+        print(f"  Security bits per layer: ~{72 if level > 128 else 72} (optimistic)")
+        print(f"  Total security: ~{kem.n_layers * 72} bits (optimistic)")
+
+    print("\n" + "=" * 50)
+    print("Each layer is an independent RCLP instance.")
+    print("Shared secret = SHA3-256(all layer codewords).")
+    print("Attacker must break ALL layers to recover the key.")
+
+
+if __name__ == "__main__":
+    main()

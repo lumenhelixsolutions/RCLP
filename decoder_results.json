@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+"""
+basic_kem.py — Basic RCLP-KEM round-trip example.
+
+Demonstrates key generation, encapsulation, and decapsulation
+for the RCLP-128 parameter set.
+"""
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+from rclp import RCLP_KEM
+
+
+def main():
+    print("RCLP-KEM Basic Example")
+    print("=" * 40)
+
+    # Initialize with 128-bit security
+    kem = RCLP_KEM(security_bits=128)
+    print(f"Parameter set: RCLP-{kem.security_bits}")
+    print(f"  Layers: {kem.n_layers}")
+    print(f"  Public key: {kem.public_key_size()} bytes")
+    print(f"  Secret key: {kem.secret_key_size()} bytes")
+    print(f"  Ciphertext: {kem.ciphertext_size()} bytes")
+
+    # Key generation
+    print("\n[1] Generating keypair...")
+    pk, sk = kem.keygen()
+    print("    Done.")
+
+    # Encapsulation (sender side)
+    print("[2] Encapsulating shared secret...")
+    ct, ss_sender = kem.encapsulate(pk)
+    print(f"    Shared secret (sender): {ss_sender[:16].hex()}...")
+
+    # Decapsulation (receiver side)
+    print("[3] Decapsulating shared secret...")
+    ss_receiver = kem.decapsulate(sk, ct)
+    print(f"    Shared secret (receiver): {ss_receiver[:16].hex()}...")
+
+    # Verify
+    match = ss_sender == ss_receiver
+    print(f"\n{'✓' if match else '✗'} Shared secrets {'match' if match else 'DO NOT match'}!")
+
+    if match:
+        print("\nThe 32-byte shared secret can now be used as a symmetric key")
+        print("for AES-256-GCM or ChaCha20-Poly1305.")
+
+
+if __name__ == "__main__":
+    main()
