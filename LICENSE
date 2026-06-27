@@ -1,19 +1,14 @@
-__pycache__/
-*.py[cod]
-*$py.class
-*.egg-info/
-dist/
-build/
-*.egg
-.eggs/
-.pytest_cache/
-.coverage
-htmlcov/
-*.so
-.venv/
-venv/
-env/
-.env
-*.log
-.DS_Store
-Thumbs.db
+Copyright (c) 2026 Christopher G. Phillips (Lumen Helix Solutions). All Rights Reserved.
+
+The source code, documentation, and proofs in this repository ("The Software") are proprietary intellectual property of Christopher G. Phillips and Lumen Helix Solutions.
+
+LIMITED LICENSE GRANT:
+Permission is hereby granted, free of charge, to any person obtaining a copy of The Software, to view the code, compile it locally, and run the proofs strictly for the purposes of non-commercial academic review, peer review, and verification of results.
+
+RESTRICTIONS:
+1. You may not modify, create derivative works of, or distribute The Software.
+2. You may not use The Software, or any mathematical/computational insights derived from it, for any commercial, production, or business purposes.
+3. You may not host The Software as a public service or API.
+4. No patent rights or trademark rights (including the use of the Christopher G. Phillips or Lumen Helix Solutions names or any associated product names) are granted.
+
+For commercial licensing inquiries, please contact Christopher G. Phillips.
