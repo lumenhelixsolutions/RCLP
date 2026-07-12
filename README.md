@@ -1,30 +1,26 @@
 # RCLP
 
 <p align="center">
-  <a href="https://lumenhelix.com">
-    <img src="docs/assets/lumenhelix-logo.svg" alt="LumenHelix Solutions" width="180">
-  </a>
+  <img src="docs/assets/logo.svg" alt="RCLP logo" width="160">
 </p>
 
-<h3 align="center">Post-quantum cryptography from the Golay code, Leech lattice, and two-sided surfaces</h3>
+<h3 align="center">Post-quantum. Lattice-hard. Self-inverse.</h3>
+
+<p align="center">A post-quantum cryptographic framework built from the Golay code, Leech lattice, and two-sided surfaces.</p>
 
 <p align="center">
-  <a href="https://lumenhelixsolutions.github.io/RCLP/">
-    <img src="https://img.shields.io/badge/Launch_Page-RCLP-00D4FF?style=flat-square&logo=githubpages&logoColor=white" alt="Launch Page">
-  </a>
-  <a href="https://lumenhelix.com">
-    <img src="https://img.shields.io/badge/Built_by-LumenHelix-7C3AED?style=flat-square" alt="Built by LumenHelix">
-  </a>
-  <img src="https://img.shields.io/badge/license-MIT-8A95A8?style=flat-square" alt="License">
+  <a href="https://lumenhelixsolutions.github.io/RCLP/">Launch Page</a>
+  <span> · </span>
+  <a href="https://github.com/lumenhelixsolutions/RCLP">GitHub</a>
+  <span> · </span>
+  <a href="https://lumenhelix.com">LumenHelix</a>
 </p>
 
 ---
 
-**RCLP** is part of the [LumenHelix Solutions](https://lumenhelix.com) portfolio — applied symbolic dynamics & reversible computation for deterministic, traceable AI systems.
+RCLP (Reversibility-Constrained Lattice Problem) defines a new hardness assumption using two-sided surface flips constrained by the Golay code and embedded in the Leech lattice. RCLP-KEM achieves 100 percent decryption correctness and ciphertexts/secret keys roughly 5-6 times smaller than ML-KEM-768.
 
-RCLP (Reversibility-Constrained Lattice Problem) is a post-quantum cryptographic framework built by LumenHelix. It defines a new hardness assumption using two-sided surface flips constrained by the Golay code and embedded in the Leech lattice. RCLP-KEM achieves 100 percent decryption correctness in verification and produces ciphertexts and secret keys roughly 5-6 times smaller than ML-KEM-768.
-
-## Why this exists
+## Why RCLP
 
 - **Compact keys.** 192-byte ciphertexts and 388-byte secret keys at the 128-bit security level.
 - **Self-inverse decryption.** The flip operation is an involution: applying it twice returns the original state.
@@ -32,16 +28,13 @@ RCLP (Reversibility-Constrained Lattice Problem) is a post-quantum cryptographic
 
 ## Quick start
 
-Install and run RCLP in under two minutes.
-
 ### macOS / Linux
 
 ```bash
-# Clone
 git clone https://github.com/lumenhelixsolutions/RCLP.git
 cd RCLP
-
-# Install & run
+git clone https://github.com/lumenhelixsolutions/RCLP.git
+cd RCLP
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 .venv/bin/pip install -e .
@@ -51,11 +44,10 @@ python3 -m venv .venv
 ### Windows (PowerShell)
 
 ```powershell
-# Clone
 git clone https://github.com/lumenhelixsolutions/RCLP.git
 Set-Location RCLP
-
-# Install & run
+git clone https://github.com/lumenhelixsolutions/RCLP.git
+Set-Location RCLP
 python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
 .venv\Scripts\pip install -e .
@@ -67,18 +59,15 @@ python -m venv .venv
 ```bash
 git clone https://github.com/lumenhelixsolutions/RCLP.git
 cd RCLP
+git clone https://github.com/lumenhelixsolutions/RCLP.git
+cd RCLP
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 .venv/bin/pip install -e .
 .venv/bin/python -m pytest tests/
 ```
 
-> **Device note:** RCLP is tested on Windows 11, macOS Sonoma, Ubuntu 22.04/24.04, and modern mobile browsers.
-
-## Full documentation
-
-Visit the launch page for architecture, API reference, and deployment guides:  
-**https://lumenhelixsolutions.github.io/RCLP/**
+> Tested on Windows 11, macOS Sonoma, Ubuntu 22.04/24.04, and modern mobile browsers.
 
 ## Features
 
@@ -89,17 +78,12 @@ Visit the launch page for architecture, API reference, and deployment guides:
 | Conway automorphisms | Sign-change automorphisms indexed by Golay codewords embed the monomial subgroup 2^12.M24 in Co0. |
 | Verified by computation | All mathematical foundations — Golay weight distribution, Leech minimal vectors, KEM correctness — are computationally verified. |
 
-## Architecture at a glance
+## Architecture
 
 ```
-RCLP/
-├── golay.py          [24,12,8] Golay code construction
-├── leech.py          Leech lattice Lambda_24 construction
-├── surface.py        Two-sided surface model
-├── kem.py            RCLP-KEM implementation
-├── decoder.py        Babai + Golay nearest-codeword decoder
-├── hypercomplex.py   Quaternion, octonion, sedenion arithmetic
-└── tests/            Unit tests for Golay, Leech, KEM, and decoder
+Golay Code  ->  Valid Flip Pattern  ->  Leech Lattice Vector  ->  Two-Sided Surface  ->  RCLP-KEM Ciphertext
+       ^                                                                            |
+       └─────────────── Babai + Nearest-Codeword Decoder ───────────────────────────┘
 ```
 
 ## Development
@@ -120,14 +104,6 @@ python -m pytest tests/
 - [ ] Quantum security analysis and independent cryptanalytic review
 - [ ] Optimized C/C++ reference implementation for fair benchmarking
 
-## Support & consulting
-
-Need deterministic AI systems with full traceability? LumenHelix builds reversible computation kernels, governance layers, and end-to-end AI integrations.
-
-- **Website:** https://lumenhelix.com
-- **Services:** AI diagnostics, B.Y.O. support packages, governance audits
-- **Research:** TEN² kernel, R.U.B.I.C. boundary discipline, C.O.R.E. constraint lens
-
 ## License
 
 Released under the MIT License.
@@ -135,5 +111,5 @@ Released under the MIT License.
 ---
 
 <p align="center">
-  <sub>Engineered by <a href="https://lumenhelix.com">LumenHelix Solutions</a> — Applied Symbolic Dynamics & Reversible Computation.</sub>
+  <sub>RCLP is a <a href="https://lumenhelix.com">LumenHelix</a> project — Applied Symbolic Dynamics & Reversible Computation.</sub>
 </p>
